@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Doctor Dashboard</h1>
+    
+    <!-- Search Form -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Search Patients</h5>
+            <form action="{{ url_for('doctor.dashboard') }}" method="get" class="mb-3">
+                <div class="input-group">
+                    <input type="text" name="query" class="form-control" placeholder="Enter patient ID, username, or email" value="{{ request.args.get('query', '') }}">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Patient List -->
+    {% if patients %}
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Search Results</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for patient in patients %}
+                        <tr>
+                            <td>{{ patient.id }}</td>
+                            <td>{{ patient.username }}</td>
+                            <td>{{ patient.email }}</td>
+                            <td>
+                                {% if patient.id in access_requests %}
+                                    {% if access_requests[patient.id] == 'pending' %}
+                                        <span class="badge bg-warning">Request Pending</span>
+                                    {% elif access_requests[patient.id] == 'approved' %}
+                                        <span class="badge bg-success">Access Granted</span>
+                                        <a href="{{ url_for('doctor.view_records', patient_id=patient.id) }}" class="btn btn-sm btn-primary">View Records</a>
+                                    {% else %}
+                                        <span class="badge bg-danger">Request Denied</span>
+                                    {% endif %}
+                                {% else %}
+                                    <form action="{{ url_for('doctor.request_access', patient_id=patient.id) }}" method="post" style="display: inline;">
+                                        <button type="submit" class="btn btn-sm btn-primary">Request Access</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% elif request.args.get('query') %}
+    <div class="alert alert-info">No patients found matching your search criteria.</div>
+    {% endif %}
+</div>
+{% endblock %}

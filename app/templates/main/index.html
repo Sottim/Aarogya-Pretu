@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h1 class="display-4 mb-4">Welcome to Aarogya Pretu</h1>
+            <p class="lead">A secure and privacy-focused health records management system</p>
+        </div>
+    </div>
+
+    {% if not current_user.is_authenticated %}
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Get Started</h5>
+                    <p class="card-text">Join our secure platform to manage your health records or provide healthcare services.</p>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Register Now</a>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary">Login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="row mt-4">
+        {% if current_user.__class__.__name__ == 'Doctor' %}
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Doctor Dashboard</h5>
+                    <p class="card-text">View and manage your patient records and access requests.</p>
+                    <a href="{{ url_for('doctor.dashboard') }}" class="btn btn-primary">Go to Dashboard</a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">My Health Records</h5>
+                    <p class="card-text">View and manage your health records securely.</p>
+                    <a href="{{ url_for('main.health_data') }}" class="btn btn-primary">View Records</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Access Requests</h5>
+                    <p class="card-text">Manage data access requests and permissions.</p>
+                    <a href="{{ url_for('main.access_requests') }}" class="btn btn-primary">View Requests</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Privacy First</h5>
+                    <p class="card-text">Your health data is encrypted and only accessible to authorized healthcare providers.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Secure Access</h5>
+                    <p class="card-text">Control who can view your medical records with our consent-based system.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Data Integrity</h5>
+                    <p class="card-text">Digital signatures ensure your medical records cannot be tampered with.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Access Requests</h1>
+    
+    <!-- Pending Requests -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Pending Requests</h5>
+            {% if pending_requests %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Doctor</th>
+                            <th>Request Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in pending_requests %}
+                        <tr>
+                            <td>{{ request.doctor.username }} (License: {{ request.doctor.license_number }})</td>
+                            <td>{{ request.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                            <td>
+                                <form action="{{ url_for('main.handle_access_request', request_id=request.id) }}" method="post" style="display: inline;">
+                                    <input type="hidden" name="action" value="approve">
+                                    <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                                </form>
+                                <form action="{{ url_for('main.handle_access_request', request_id=request.id) }}" method="post" style="display: inline;">
+                                    <input type="hidden" name="action" value="deny">
+                                    <button type="submit" class="btn btn-sm btn-danger">Deny</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">No pending requests.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Approved Requests -->
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Approved Requests</h5>
+            {% if approved_requests %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Doctor</th>
+                            <th>Approved Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in approved_requests %}
+                        <tr>
+                            <td>{{ request.doctor.username }} (License: {{ request.doctor.license_number }})</td>
+                            <td>{{ request.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                            <td>
+                                <form action="{{ url_for('main.handle_access_request', request_id=request.id) }}" method="post">
+                                    <input type="hidden" name="action" value="revoke">
+                                    <button type="submit" class="btn btn-sm btn-warning">Revoke Access</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">No approved requests.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
