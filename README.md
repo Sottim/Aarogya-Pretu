@@ -4,62 +4,145 @@ A secure health records system that implements privacy-preserving data sharing b
 
 ## Features
 
-- Secure user authentication and registration
-- Encrypted health data storage
-- Doctor verification system
-- Consent-based data access
-- Public key infrastructure for secure data sharing
+- Secure user authentication and registration (Patient & Doctor roles)
+- Role-based access control
+- Public/Private Key generation for users
+- Storage of health records encrypted with patient's public key
+- Doctor verification system (manual/admin process implied)
+- Consent-based access request system for doctors to view patient records
+- Decryption key sharing upon patient approval using doctor's public key
 
-## Setup
+## Tech Stack
 
-### 1. Create and activate a Conda environment
+- **Backend:** Python, Flask
+- **Database:** PostgreSQL (using SQLAlchemy ORM)
+- **Migrations:** Flask-Migrate (Alembic)
+- **Authentication:** Flask-Login
+- **Forms:** Flask-WTF
+- **Environment:** Python 3.9+
+- **Deployment:** Configured for Vercel (see `vercel.json`, `api/index.py`)
+
+## Local Development Setup
+
+### 1. Clone the Repository
+
+```bash
+git clone <your-repo-url>
+cd Aarogya-Pretu
+```
+
+### 2. Create and Activate a Virtual Environment
+
+Using `venv` (recommended):
+
+```bash
+python3 -m venv venv
+source venv/bin/activate  # On Windows use `venv\\Scripts\\activate`
+```
+
+Or using Conda:
 
 ```bash
 conda create -n pretu python=3.9
 conda activate pretu
 ```
 
-### 2. Install dependencies:
-
-First, install core packages via Conda:
-
-```bash
-conda install flask sqlalchemy psycopg2 cryptography redis
-```
-
-Then, install remaining dependencies via pip:
+### 3. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Configure environment variables
+### 4. Configure Environment Variables
 
-Create a `.env` file in the root directory and add the following:
+The application uses environment variables for configuration, managed via `config.py`. For local development, you typically don't need to set `DATABASE_URL` if you want to use the default SQLite database.
 
-```bash
-SECRET_KEY=your-super-secret-key
-DATABASE_URL=postgresql://user:password@localhost/dbname
-FLASK_ENV=development
+Create a `.env` file in the project root (this file is ignored by Git via `.gitignore`):
+
+```env
+# .env file
+
+# Required: Set a secret key for Flask sessions and security features.
+# Generate a secure key (e.g., using python -c 'import secrets; print(secrets.token_hex(24))')
+SECRET_KEY='your_very_strong_random_secret_key'
+
+# Optional: If you want to use PostgreSQL locally instead of SQLite
+# DATABASE_URL='postgresql://user:password@host:port/database_name'
 ```
 
-Replace `user`, `password`, and `dbname` with your actual PostgreSQL credentials.
+The application will automatically load variables from this `.env` file if `python-dotenv` is installed.
 
-### 4. Initialize the database:
+### 5. Set up the Database
 
-```bash
-flask db init
-flask db migrate
-flask db upgrade
-```
+Flask-Migrate is used for database schema management.
 
-### 5. Run the application:
+- **If using SQLite (default):**
+  The first time you run a migration command, the `instance/app.db` file will be created automatically based on the logic in `config.py`. Run the initial migration:
+
+  ```bash
+  flask db upgrade
+  ```
+
+- **If using local PostgreSQL:**
+  a. Make sure your PostgreSQL server is running.
+  b. Create the database specified in your `DATABASE_URL`.
+  c. Uncomment and set the `DATABASE_URL` in your `.env` file.
+  d. Run the initial migration:
+
+  ```bash
+  flask db upgrade
+  ```
+
+- **Applying subsequent migrations:**
+  Whenever the database models (`app/models.py`) change, generate and apply migrations:
+  ```bash
+  # Ensure DATABASE_URL points to your local DB (or is unset for SQLite)
+  flask db migrate -m "Description of changes"
+  flask db upgrade
+  ```
+
+### 6. Run the Application
 
 ```bash
 flask run
 ```
 
-Alternatively, you can use `python run.py` to run the application directly.
+The application should now be running locally, typically at `http://127.0.0.1:5000/`.
+
+## Deployment (Vercel Example)
+
+This project includes configuration for deploying to Vercel:
+
+1.  **`vercel.json`:** Defines build steps and routing.
+2.  **`api/index.py`:** Vercel serverless function entry point.
+3.  **Environment Variables on Vercel:**
+
+    - `DATABASE_URL`: Set this to your production PostgreSQL connection string (e.g., from Supabase, including any necessary `?sslmode=require`). Use the **Connection Pooler** URL if available.
+    - `SECRET_KEY`: Set a strong, unique secret key for production.
+    - `FLASK_ENV`: Set to `production`.
+
+4.  **Database Migrations on Vercel:**
+
+    - Vercel builds are ephemeral and cannot run `flask db upgrade` directly against the production database during build.
+    - **Manual SQL Execution:** The recommended approach is to generate migration SQL locally and apply it manually to your production database (e.g., via Supabase SQL Editor):
+
+      ```bash
+      # 1. Ensure DATABASE_URL is unset or points locally
+      flask db migrate -m "Description for production migration"
+
+      # 2. Get the previous (head) and new revision IDs
+      # Previous head: flask db current
+      # New revision: ID generated by migrate command
+
+      # 3. Generate SQL for the specific upgrade
+      flask db upgrade <previous_head_rev>:<new_rev> --sql
+
+      # 4. Copy and execute the generated SQL in your production DB console
+      ```
+
+## Contributing
+
+Contributions are welcome! Please follow standard Git workflow (fork, branch, pull request). Ensure code is formatted (e.g., using Black) and dependencies are updated in `requirements.txt`.
 
 ## Security Features
 
