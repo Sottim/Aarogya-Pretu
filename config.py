@@ -1,23 +1,3 @@
-# import os
-# from datetime import timedelta
-
-# class Config:
-#     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-key-please-change-in-production'
-#     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///app.db'
-#     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    
-#     # Session configuration
-#     PERMANENT_SESSION_LIFETIME = timedelta(minutes=30)
-    
-#     # Security headers
-#     SECURITY_HEADERS = {
-#         'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
-#         'X-Content-Type-Options': 'nosniff',
-#         'X-Frame-Options': 'SAMEORIGIN',
-#         'X-XSS-Protection': '1; mode=block',
-#     }
-
-
 import os
 from dotenv import load_dotenv
 
@@ -56,6 +36,9 @@ class Config:
         SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(INSTANCE_FOLDER_PATH, 'app.db')
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    # Add this line for engine options:
+    SQLALCHEMY_ENGINE_OPTIONS = {'sslmode': 'require'}
 
 # You could add other configurations like TestingConfig, ProductionConfig
 # inheriting from this base Config if needed for more complex setups.
