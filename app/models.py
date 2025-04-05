@@ -8,7 +8,8 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128))
+    # Increase length to accommodate longer hashes like scrypt
+    password_hash = db.Column(db.String(256))
     public_key = db.Column(db.Text)
     private_key = db.Column(db.Text)  # Encrypted with user's password
     type = db.Column(db.String(20), nullable=False)  # 'patient' or 'doctor'
