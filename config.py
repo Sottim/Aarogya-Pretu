@@ -37,9 +37,6 @@ class Config:
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    # Add this line for engine options:
-    SQLALCHEMY_ENGINE_OPTIONS = {'sslmode': 'require'}
-
 # You could add other configurations like TestingConfig, ProductionConfig
 # inheriting from this base Config if needed for more complex setups.
 # Example:
