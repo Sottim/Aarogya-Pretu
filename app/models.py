@@ -67,6 +67,100 @@ class AccessRequest(db.Model):
     doctor = db.relationship('User', foreign_keys=[doctor_id], backref='doctor_requests')
     patient = db.relationship('User', foreign_keys=[patient_id], backref='patient_requests')
 
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding, rsa
+from cryptography.hazmat.primitives import serialization
+from datetime import datetime
+
+# Define type for encrypted data (use LargeBinary for raw bytes)
+EncryptedType = db.LargeBinary
+
+class PastIllness(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True, nullable=False)
+    # Encrypted Fields (using patient's public key)
+    illness_name_encrypted = db.Column(EncryptedType, nullable=False)
+    diagnosis_date_encrypted = db.Column(EncryptedType, nullable=True) # Store encrypted date representation
+    details_encrypted = db.Column(EncryptedType, nullable=True) # Notes, treatment, etc.
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationship
+    patient = db.relationship('User', backref=db.backref('past_illnesses', lazy='dynamic'))
+
+    def __repr__(self):
+        return f'<PastIllness {self.id} for User {self.user_id}>'
+
+class Surgery(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True, nullable=False)
+    # Encrypted Fields
+    surgery_name_encrypted = db.Column(EncryptedType, nullable=False)
+    surgery_date_encrypted = db.Column(EncryptedType, nullable=True)
+    details_encrypted = db.Column(EncryptedType, nullable=True) # Surgeon, hospital, notes
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    patient = db.relationship('User', backref=db.backref('surgeries', lazy='dynamic'))
+
+    def __repr__(self):
+        return f'<Surgery {self.id} for User {self.user_id}>'
+
+class Allergy(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True, nullable=False)
+    # Encrypted Fields
+    allergen_encrypted = db.Column(EncryptedType, nullable=False)
+    severity_encrypted = db.Column(EncryptedType, nullable=True) # e.g., 'Mild', 'Severe'
+    reaction_details_encrypted = db.Column(EncryptedType, nullable=True) # Description of reaction
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    patient = db.relationship('User', backref=db.backref('allergies', lazy='dynamic'))
+
+    def __repr__(self):
+        return f'<Allergy {self.id} for User {self.user_id}>'
+
+class Medication(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True, nullable=False)
+    # Encrypted Fields
+    medication_name_encrypted = db.Column(EncryptedType, nullable=False)
+    dosage_encrypted = db.Column(EncryptedType, nullable=True)
+    frequency_encrypted = db.Column(EncryptedType, nullable=True)
+    start_date_encrypted = db.Column(EncryptedType, nullable=True)
+    end_date_encrypted = db.Column(EncryptedType, nullable=True) # Null if ongoing
+    reason_encrypted = db.Column(EncryptedType, nullable=True) # Condition being treated
+    # Plaintext Fields
+    is_current = db.Column(db.Boolean, default=True, index=True) # Easier to filter current meds
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    patient = db.relationship('User', backref=db.backref('medications', lazy='dynamic'))
+
+    def __repr__(self):
+        return f'<Medication {self.id} for User {self.user_id}>'
+
+class Immunization(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True, nullable=False)
+    # Encrypted Fields
+    vaccine_name_encrypted = db.Column(EncryptedType, nullable=False)
+    date_received_encrypted = db.Column(EncryptedType, nullable=True)
+    details_encrypted = db.Column(EncryptedType, nullable=True) # Dose number, manufacturer, location
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    patient = db.relationship('User', backref=db.backref('immunizations', lazy='dynamic'))
+
+    def __repr__(self):
+        return f'<Immunization {self.id} for User {self.user_id}>'
+
 @login_manager.user_loader
 def load_user(id):
     return User.query.get(int(id))

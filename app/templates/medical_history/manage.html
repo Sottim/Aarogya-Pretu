@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ title }}</h2>
+
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Add Past Illness</h3>
+            <form action="" method="post" novalidate>
+                {{ illness_form.hidden_tag() }}
+                <div class="form-group mb-3">
+                    {{ illness_form.illness_name.label(class_='form-label') }}
+                    {{ illness_form.illness_name(class_='form-control') }}
+                    {% for error in illness_form.illness_name.errors %}
+                        <span class="text-danger">[{{ error }}]</span>
+                    {% endfor %}
+                </div>
+                <div class="form-group mb-3">
+                    {{ illness_form.diagnosis_date.label(class_='form-label') }}
+                    {{ illness_form.diagnosis_date(class_='form-control') }}
+                     {% for error in illness_form.diagnosis_date.errors %}
+                        <span class="text-danger">[{{ error }}]</span>
+                    {% endfor %}
+               </div>
+                <div class="form-group mb-3">
+                    {{ illness_form.treatment_details.label(class_='form-label') }}
+                    {{ illness_form.treatment_details(class_='form-control', rows=3) }}
+                     {% for error in illness_form.treatment_details.errors %}
+                        <span class="text-danger">[{{ error }}]</span>
+                    {% endfor %}
+                </div>
+                <div class="form-group mb-3">
+                     {# Apply Bootstrap button classes #}
+                    {{ illness_form.submit(class_='btn btn-primary') }}
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <h3>Existing Past Illnesses</h3>
+            {% if illnesses %}
+                <ul class="list-group">
+                    {% for illness in illnesses %}
+                        <li class="list-group-item">
+                            <strong>Illness:</strong> {{ illness.illness_name_encrypted.decode() if illness.illness_name_encrypted else 'N/A' }} <br>
+                            <small>
+                                <strong>Diagnosed:</strong> {{ illness.diagnosis_date_encrypted.decode() if illness.diagnosis_date_encrypted else 'N/A' }} <br>
+                                <strong>Details:</strong> {{ illness.details_encrypted.decode() if illness.details_encrypted else 'N/A' }}
+                            </small>
+                             {# TODO: Add Edit/Delete buttons here later #}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No past illnesses recorded yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    {# Placeholder sections for other medical history items #}
+    <hr>
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h3>Surgeries</h3>
+            {# Add Surgery Form/Display here #}
+            <p><small>Surgery form/list will go here.</small></p>
+        </div>
+        <div class="col-md-6">
+            <h3>Allergies</h3>
+            {# Add Allergy Form/Display here #}
+            <p><small>Allergy form/list will go here.</small></p>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h3>Medications</h3>
+            {# Add Medication Form/Display here #}
+            <p><small>Medication form/list will go here.</small></p>
+        </div>
+        <div class="col-md-6">
+            <h3>Immunizations</h3>
+            {# Add Immunization Form/Display here #}
+            <p><small>Immunization form/list will go here.</small></p>
+        </div>
+    </div>
+
+</div> 
+{% endblock %}
