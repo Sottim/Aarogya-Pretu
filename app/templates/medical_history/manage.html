@@ -67,26 +67,102 @@
         </div>
     </div>
 
-    {# Placeholder sections for other medical history items #}
     <hr>
-    <div class="row mt-4">
+
+    <div class="row">
         <div class="col-md-6">
-            <h3>Surgeries</h3>
-            {# Add Surgery Form/Display here #}
-            <p><small>Surgery form/list will go here.</small></p>
+            <h3>Add Surgery</h3>
+            <form action="" method="post" novalidate>
+                {{ surgery_form.hidden_tag() }}
+                <div class="form-group mb-3">
+                    {{ surgery_form.surgery_name.label(class_='form-label') }}
+                    {{ surgery_form.surgery_name(class_='form-control') }}
+                    {% for error in surgery_form.surgery_name.errors %}
+                        <span class="text-danger">[{{ error }}]</span>
+                    {% endfor %}
+                </div>
+                <div class="form-group mb-3">
+                    {{ surgery_form.surgery_date.label(class_='form-label') }}
+                    {{ surgery_form.surgery_date(class_='form-control') }}
+                     {% for error in surgery_form.surgery_date.errors %}
+                        <span class="text-danger">[{{ error }}]</span>
+                    {% endfor %}
+               </div>
+                <div class="form-group mb-3">
+                    {{ surgery_form.surgeon.label(class_='form-label') }}
+                    {{ surgery_form.surgeon(class_='form-control') }}
+                     {% for error in surgery_form.surgeon.errors %}
+                        <span class="text-danger">[{{ error }}]</span>
+                    {% endfor %}
+                </div>
+                <div class="form-group mb-3">
+                    {{ surgery_form.hospital.label(class_='form-label') }}
+                    {{ surgery_form.hospital(class_='form-control') }}
+                     {% for error in surgery_form.hospital.errors %}
+                        <span class="text-danger">[{{ error }}]</span>
+                    {% endfor %}
+                </div>
+                <div class="form-group mb-3">
+                    {{ surgery_form.details.label(class_='form-label') }}
+                    {{ surgery_form.details(class_='form-control', rows=3) }}
+                     {% for error in surgery_form.details.errors %}
+                        <span class="text-danger">[{{ error }}]</span>
+                    {% endfor %}
+                </div>
+                <div class="form-group mb-3">
+                     {# Apply Bootstrap button classes #}
+                    {{ surgery_form.submit(class_='btn btn-primary') }}
+                </div>
+            </form>
         </div>
+        <div class="col-md-6">
+            <h3>Existing Surgeries</h3>
+            {% if surgeries %}
+                <ul class="list-group">
+                    {% for surgery in surgeries %}
+                        <li class="list-group-item">
+                            <strong>Surgery:</strong> {{ surgery.surgery_name }} <br>
+                            <small>
+                                <strong>Date:</strong> {{ surgery.surgery_date }} <br>
+                                <strong>Surgeon:</strong> {{ surgery.surgeon }} <br>
+                                <strong>Hospital:</strong> {{ surgery.hospital }} <br>
+                                <strong>Details:</strong> {{ surgery.details }}
+                            </small>
+                            <div class="mt-2">
+                                <form action="{{ url_for('medical_history.delete_surgery', surgery_id=surgery.id) }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this surgery record?')">
+                                        Delete
+                                    </button>
+                                </form>
+                                <a href="{{ url_for('medical_history.edit_surgery', surgery_id=surgery.id) }}" class="btn btn-primary btn-sm ms-2">
+                                    Edit
+                                </a>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No surgeries recorded yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="row mt-4">
         <div class="col-md-6">
             <h3>Allergies</h3>
             {# Add Allergy Form/Display here #}
             <p><small>Allergy form/list will go here.</small></p>
         </div>
-    </div>
-    <div class="row mt-4">
         <div class="col-md-6">
             <h3>Medications</h3>
             {# Add Medication Form/Display here #}
             <p><small>Medication form/list will go here.</small></p>
         </div>
+    </div>
+
+    <div class="row mt-4">
         <div class="col-md-6">
             <h3>Immunizations</h3>
             {# Add Immunization Form/Display here #}
