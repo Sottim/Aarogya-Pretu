@@ -43,12 +43,21 @@
                 <ul class="list-group">
                     {% for illness in illnesses %}
                         <li class="list-group-item">
-                            <strong>Illness:</strong> {{ illness.illness_name_encrypted.decode() if illness.illness_name_encrypted else 'N/A' }} <br>
+                            <strong>Illness:</strong> {{ illness.illness_name }} <br>
                             <small>
-                                <strong>Diagnosed:</strong> {{ illness.diagnosis_date_encrypted.decode() if illness.diagnosis_date_encrypted else 'N/A' }} <br>
-                                <strong>Details:</strong> {{ illness.details_encrypted.decode() if illness.details_encrypted else 'N/A' }}
+                                <strong>Diagnosed:</strong> {{ illness.diagnosis_date }} <br>
+                                <strong>Details:</strong> {{ illness.treatment_details }}
                             </small>
-                             {# TODO: Add Edit/Delete buttons here later #}
+                            <div class="mt-2">
+                                <form action="{{ url_for('medical_history.delete_illness', illness_id=illness.id) }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this illness record?')">
+                                        Delete
+                                    </button>
+                                </form>
+                                <a href="{{ url_for('medical_history.edit_illness', illness_id=illness.id) }}" class="btn btn-primary btn-sm ms-2">
+                                    Edit
+                                </a>
+                            </div>
                         </li>
                     {% endfor %}
                 </ul>
