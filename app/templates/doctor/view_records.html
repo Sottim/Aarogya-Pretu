@@ -39,6 +39,7 @@
     
     <div class="mt-3">
         <a href="{{ url_for('doctor.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+        <a href="{{ url_for('doctor.view_medical_history', patient_id=patient.id) }}" class="btn btn-info">View Medical History</a>
     </div>
 </div>
 {% endblock %}

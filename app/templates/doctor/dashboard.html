@@ -21,15 +21,15 @@
     {% if patients %}
     <div class="card">
         <div class="card-body">
-            <h5 class="card-title">Search Results</h5>
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>Patient ID</th>
                             <th>Username</th>
                             <th>Email</th>
-                            <th>Action</th>
+                            <th>Access Status</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -43,14 +43,23 @@
                                     {% if access_requests[patient.id] == 'pending' %}
                                         <span class="badge bg-warning">Request Pending</span>
                                     {% elif access_requests[patient.id] == 'approved' %}
-                                        <span class="badge bg-success">Access Granted</span>
-                                        <a href="{{ url_for('doctor.view_records', patient_id=patient.id) }}" class="btn btn-sm btn-primary">View Records</a>
+                                        <span class="badge bg-success">Access Approved</span>
                                     {% else %}
                                         <span class="badge bg-danger">Request Denied</span>
                                     {% endif %}
                                 {% else %}
+                                    <span class="badge bg-secondary">No Request</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if patient.id in access_requests %}
+                                    {% if access_requests[patient.id] == 'approved' %}
+                                        <a href="{{ url_for('doctor.view_records', patient_id=patient.id) }}" class="btn btn-success btn-sm">View Health Records</a>
+                                        <a href="{{ url_for('doctor.view_medical_history', patient_id=patient.id) }}" class="btn btn-info btn-sm">View Medical History</a>
+                                    {% endif %}
+                                {% else %}
                                     <form action="{{ url_for('doctor.request_access', patient_id=patient.id) }}" method="post" style="display: inline;">
-                                        <button type="submit" class="btn btn-sm btn-primary">Request Access</button>
+                                        <button type="submit" class="btn btn-primary btn-sm">Request Access</button>
                                     </form>
                                 {% endif %}
                             </td>
@@ -62,7 +71,9 @@
         </div>
     </div>
     {% elif request.args.get('query') %}
-    <div class="alert alert-info">No patients found matching your search criteria.</div>
+    <div class="alert alert-info">
+        No patients found matching your search criteria.
+    </div>
     {% endif %}
 </div>
 {% endblock %}

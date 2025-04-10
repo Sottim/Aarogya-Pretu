@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Medical History - {{ patient.username }}</h1>
+    <p class="text-muted">Patient ID: {{ patient.id }}</p>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2 class="mb-0">Past Illnesses</h2>
+        </div>
+        <div class="card-body">
+            {% if illnesses %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Illness</th>
+                            <th>Diagnosis Date</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for illness in illnesses %}
+                        <tr>
+                            <td>{{ illness.illness_name }}</td>
+                            <td>{{ illness.diagnosis_date }}</td>
+                            <td>{{ illness.details }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">No past illnesses recorded.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2 class="mb-0">Surgeries</h2>
+        </div>
+        <div class="card-body">
+            {% if surgeries %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Surgery</th>
+                            <th>Date</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for surgery in surgeries %}
+                        <tr>
+                            <td>{{ surgery.surgery_name }}</td>
+                            <td>{{ surgery.surgery_date }}</td>
+                            <td>{{ surgery.details }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">No surgeries recorded.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2 class="mb-0">Allergies</h2>
+        </div>
+        <div class="card-body">
+            {% if allergies %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Allergen</th>
+                            <th>Severity</th>
+                            <th>Reaction Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for allergy in allergies %}
+                        <tr>
+                            <td>{{ allergy.allergen }}</td>
+                            <td>{{ allergy.severity }}</td>
+                            <td>{{ allergy.reaction_details }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">No allergies recorded.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2 class="mb-0">Medications</h2>
+        </div>
+        <div class="card-body">
+            {% if medications %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Medication</th>
+                            <th>Dosage</th>
+                            <th>Frequency</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for medication in medications %}
+                        <tr>
+                            <td>{{ medication.medication_name }}</td>
+                            <td>{{ medication.dosage }}</td>
+                            <td>{{ medication.frequency }}</td>
+                            <td>{{ medication.start_date }}</td>
+                            <td>{{ medication.end_date if medication.end_date else 'Ongoing' }}</td>
+                            <td>{{ medication.reason }}</td>
+                            <td>{{ 'Current' if medication.is_current else 'Completed' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">No medications recorded.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a href="{{ url_for('doctor.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+        <a href="{{ url_for('doctor.view_records', patient_id=patient.id) }}" class="btn btn-primary">View Health Records</a>
+    </div>
+</div>
+{% endblock %}
