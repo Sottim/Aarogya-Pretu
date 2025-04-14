@@ -15,19 +15,21 @@ db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
 bootstrap = Bootstrap()
+mail = Mail()
 
 def create_app(config_name='default'):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
 
+    # Log the database URI for debugging
+    app.logger.info(f"Using SQLALCHEMY_DATABASE_URI: {app.config.get('SQLALCHEMY_DATABASE_URI')}")
+
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
     bootstrap.init_app(app)
+    mail.init_app(app)
     login_manager.login_view = 'auth.login'
-
-    # Initialize Flask-Mail
-    mail = Mail(app)
 
     # Import models after db is initialized with app
     from app import models
@@ -46,18 +48,15 @@ def create_app(config_name='default'):
     from app.medical_history import bp as medical_history_bp
     app.register_blueprint(medical_history_bp)
 
-        # Configure logging
+    # In app/__init__.py
     if not app.debug:
         import logging
-        from logging.handlers import RotatingFileHandler
-        
-        file_handler = RotatingFileHandler('app.log', maxBytes=10240, backupCount=10)
-        file_handler.setFormatter(logging.Formatter(
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(logging.Formatter(
             '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
         ))
-        file_handler.setLevel(logging.INFO)
-        app.logger.addHandler(file_handler)
-        
+        stream_handler.setLevel(logging.INFO)
+        app.logger.addHandler(stream_handler)
         app.logger.setLevel(logging.INFO)
         app.logger.info('Aarogya Pretu startup')
     

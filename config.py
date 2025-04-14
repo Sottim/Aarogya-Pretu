@@ -14,51 +14,40 @@ class Config:
     DEBUG = FLASK_ENV == 'development'
     
     # Mail Configuration
-    MAIL_SERVER = 'smtp.gmail.com'
-    MAIL_PORT = 587
-    MAIL_USE_TLS = True
+    MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
+    MAIL_PORT = int(os.environ.get('MAIL_PORT', 587))
+    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'True') == 'True'
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER')
     
     # Frontend URL Configuration
-    FRONTEND_URL = os.environ.get('FRONTEND_URL')
-    if not FRONTEND_URL:
-        FRONTEND_URL = 'http://localhost:5000' if FLASK_ENV == 'development' else 'https://aarogya-pretu.vercel.app/'
+    FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://aarogya-pretu.vercel.app/')
     
     # Database Configuration
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     if not SQLALCHEMY_DATABASE_URI:
-        if FLASK_ENV == 'development':
-            # Only use SQLite for development
-            INSTANCE_FOLDER_PATH = os.path.join(basedir, 'instance')
-            if not os.path.exists(INSTANCE_FOLDER_PATH):
-                try:
-                    os.makedirs(INSTANCE_FOLDER_PATH)
-                    print(f"Created instance folder at: {INSTANCE_FOLDER_PATH}")
-                except OSError as e:
-                    print(f"Error creating instance folder {INSTANCE_FOLDER_PATH}: {e}")
-            SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(INSTANCE_FOLDER_PATH, 'app.db')
-        else:
-            # For production, we must have a DATABASE_URL set
-            raise ValueError("DATABASE_URL must be set for production environment")
+        raise ValueError("DATABASE_URL is not set. Please set the DATABASE_URL environment variable.")
+    
+    # Ensure PostgreSQL URL uses correct scheme for SQLAlchemy
+    if SQLALCHEMY_DATABASE_URI and SQLALCHEMY_DATABASE_URI.startswith("postgresql"):
+        SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI.replace("postgresql://", "postgresql+psycopg2://", 1)
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 class DevelopmentConfig(Config):
     DEBUG = True
+    # Use SQLite only for local development
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
 
 class ProductionConfig(Config):
     DEBUG = False
+    # Rely solely on DATABASE_URL in production
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+    if not SQLALCHEMY_DATABASE_URI:
+        raise ValueError("DATABASE_URL must be set for production environment")
+    SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI.replace("postgresql://", "postgresql+psycopg2://", 1)
     FRONTEND_URL = 'https://aarogya-pretu.vercel.app/'
-    MAIL_SERVER = 'smtp.gmail.com'
-    MAIL_PORT = 587
-    MAIL_USE_TLS = True
-    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER')
 
 config = {
     'development': DevelopmentConfig,
