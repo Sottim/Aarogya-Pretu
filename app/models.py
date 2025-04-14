@@ -1,8 +1,15 @@
 from app import db, login_manager
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from itsdangerous import URLSafeTimedSerializer
 from datetime import datetime
 import json
+from flask import current_app
+
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding, rsa
+from cryptography.hazmat.primitives import serialization
+from datetime import datetime
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -17,13 +24,37 @@ class User(UserMixin, db.Model):
     
     # For doctors only
     license_number = db.Column(db.String(64), unique=True, nullable=True)
-    verified = db.Column(db.Boolean, default=False)
+
+    # For email verification
+    is_verified = db.Column(db.Boolean, default=False)
+    verification_token = db.Column(db.String(128), unique=True)
+    verification_token_expires = db.Column(db.DateTime)
+
+    def is_verification_token_valid(self):
+        if not self.verification_token:
+            return False
+        if not self.verification_token_expires:
+            return False
+        return self.verification_token_expires > datetime.utcnow()
     
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
     
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+    def get_reset_password_token(self, expires_in=3600):
+        s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+        return s.dumps({'user_id': self.id}, salt='password-reset')
+
+    @staticmethod
+    def verify_reset_password_token(token):
+        s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token, salt='password-reset', max_age=3600)
+            return User.query.get(data['user_id'])
+        except:
+            return None
 
     @property
     def is_doctor(self):
@@ -66,11 +97,6 @@ class AccessRequest(db.Model):
     
     doctor = db.relationship('User', foreign_keys=[doctor_id], backref='doctor_requests')
     patient = db.relationship('User', foreign_keys=[patient_id], backref='patient_requests')
-
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.asymmetric import padding, rsa
-from cryptography.hazmat.primitives import serialization
-from datetime import datetime
 
 # Define type for encrypted data (use LargeBinary for raw bytes)
 EncryptedType = db.LargeBinary

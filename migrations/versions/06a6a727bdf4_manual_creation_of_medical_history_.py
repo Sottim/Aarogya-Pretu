@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '06a6a727bdf4'
-down_revision = 'b314006082c6' # Point to the previous (empty) migration
+down_revision = 'a002f4389768' # Point to the previous (empty) migration
 branch_labels = None
 depends_on = None
 
