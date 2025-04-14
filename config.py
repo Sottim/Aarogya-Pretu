@@ -29,14 +29,19 @@ class Config:
     # Database Configuration
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     if not SQLALCHEMY_DATABASE_URI:
-        INSTANCE_FOLDER_PATH = os.path.join(basedir, 'instance')
-        if not os.path.exists(INSTANCE_FOLDER_PATH):
-            try:
-                os.makedirs(INSTANCE_FOLDER_PATH)
-                print(f"Created instance folder at: {INSTANCE_FOLDER_PATH}")
-            except OSError as e:
-                print(f"Error creating instance folder {INSTANCE_FOLDER_PATH}: {e}")
-        SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(INSTANCE_FOLDER_PATH, 'app.db')
+        # Only use SQLite for development
+        if FLASK_ENV == 'development':
+            INSTANCE_FOLDER_PATH = os.path.join(basedir, 'instance')
+            if not os.path.exists(INSTANCE_FOLDER_PATH):
+                try:
+                    os.makedirs(INSTANCE_FOLDER_PATH)
+                    print(f"Created instance folder at: {INSTANCE_FOLDER_PATH}")
+                except OSError as e:
+                    print(f"Error creating instance folder {INSTANCE_FOLDER_PATH}: {e}")
+            SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(INSTANCE_FOLDER_PATH, 'app.db')
+        else:
+            # For production, we must have a DATABASE_URL set
+            raise ValueError("DATABASE_URL must be set for production environment")
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
