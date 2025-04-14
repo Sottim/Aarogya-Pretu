@@ -29,8 +29,8 @@ class Config:
     # Database Configuration
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     if not SQLALCHEMY_DATABASE_URI:
-        # Only use SQLite for development
         if FLASK_ENV == 'development':
+            # Only use SQLite for development
             INSTANCE_FOLDER_PATH = os.path.join(basedir, 'instance')
             if not os.path.exists(INSTANCE_FOLDER_PATH):
                 try:
@@ -51,7 +51,7 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     DEBUG = False
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or Config.SQLALCHEMY_DATABASE_URI
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     FRONTEND_URL = 'https://aarogya-pretu.vercel.app/'
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 587
