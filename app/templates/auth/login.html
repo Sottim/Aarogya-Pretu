@@ -43,9 +43,15 @@
                         <p class="text-muted">
                             Forgot your password? <a href="{{ url_for('auth.reset_password_request') }}">Reset it</a>
                         </p>
+                        {% if current_user.is_authenticated and not current_user.is_verified %}
                         <p class="text-muted">
-                            Haven't verified your email? <a href="{{ url_for('auth.resend_verification_email') }}">Resend verification email</a>
+                            Haven't verified your email?
+                            <form method="POST" action="{{ url_for('auth.resend_verification_email') }}" style="display: inline;">
+                                {{ form.hidden_tag() }} <!-- Reuses LoginForm's CSRF token -->
+                                <button type="submit" class="btn btn-link p-0 m-0 align-baseline text-muted" style="border: none; background: none;">Resend verification email</button>
+                            </form>
                         </p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
